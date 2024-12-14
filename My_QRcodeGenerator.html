@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code 產生器</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #qrcode {
+            margin: 20px auto;
+            position: relative;
+            resize: both;
+            overflow: hidden;
+            min-width: 128px;
+            min-height: 128px;
+            max-width: 512px;
+            max-height: 512px;
+            width: 256px;
+            height: 256px;
+            border: 1px dashed #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #qrcode img {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        #sizeInfo {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code 產生器</h1>
+    <input type="text" id="urlInput" value="https://www.google.com" placeholder="請輸入網址">
+    <br>
+    <button onclick="generateQR()">產生 QR Code</button>
+    <button onclick="goToUrl()" style="background-color: #2196F3;">前往網頁</button>
+    <br>
+    <div id="qrcode"></div>
+    <div id="sizeInfo">可拖曳右下角調整大小</div>
+
+    <script>
+        // 頁面載入時立即產生預設的 QR Code
+        window.onload = function() {
+            generateQR();
+        };
+
+        function generateQR() {
+            // 清除舊的 QR Code
+            document.getElementById('qrcode').innerHTML = '';
+            
+            // 取得輸入的網址
+            let url = document.getElementById('urlInput').value;
+            
+            // 取得當前 QR code 容器的大小
+            let container = document.getElementById('qrcode');
+            let size = Math.min(container.offsetWidth, container.offsetHeight);
+            
+            // 產生 QR Code
+            new QRCode(container, {
+                text: url,
+                width: size,
+                height: size,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        // 監聽容器大小變化
+        let qrContainer = document.getElementById('qrcode');
+        new ResizeObserver(() => {
+            generateQR();
+        }).observe(qrContainer);
+
+        function goToUrl() {
+            let url = document.getElementById('urlInput').value;
+            if (url) {
+                // 檢查 URL 是否包含協議（http:// 或 https://）
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                // 在新分頁中開啟網址
+                window.open(url, '_blank');
+            } else {
+                alert('請輸入有效的網址！');
+            }
+        }
+    </script>
+</body>
+</html> 

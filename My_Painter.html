@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>網頁小畫家</title>
+    <style>
+        #canvas {
+            border: 1px solid #000;
+            cursor: crosshair;
+        }
+        .tools {
+            margin: 10px 0;
+        }
+        button {
+            padding: 5px 10px;
+            margin: 0 5px;
+        }
+        #colorPicker {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="tools">
+        <button id="pencil">畫筆</button>
+        <button id="eraser">橡皮擦</button>
+        <input type="color" id="colorPicker" value="#000000">
+        <label>筆刷大小：</label>
+        <input type="range" id="brushSize" min="1" max="20" value="5">
+        <button id="save">儲存圖片</button>
+        <button id="clear">清除畫布</button>
+    </div>
+    <canvas id="canvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const pencilBtn = document.getElementById('pencil');
+        const eraserBtn = document.getElementById('eraser');
+        const colorPicker = document.getElementById('colorPicker');
+        const brushSize = document.getElementById('brushSize');
+        const saveBtn = document.getElementById('save');
+        const clearBtn = document.getElementById('clear');
+
+        let isDrawing = false;
+        let isEraser = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        // 設定初始畫布背景為白色
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 設定初始繪圖狀態
+        ctx.strokeStyle = colorPicker.value;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.lineWidth = brushSize.value;
+
+        // 繪圖相關事件
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // 工具按鈕事件
+        pencilBtn.addEventListener('click', () => {
+            isEraser = false;
+            canvas.style.cursor = 'crosshair';
+        });
+
+        eraserBtn.addEventListener('click', () => {
+            isEraser = true;
+            canvas.style.cursor = 'cell';
+        });
+
+        colorPicker.addEventListener('change', (e) => {
+            ctx.strokeStyle = e.target.value;
+        });
+
+        brushSize.addEventListener('change', (e) => {
+            ctx.lineWidth = e.target.value;
+        });
+
+        saveBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = '我的畫作.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+
+        clearBtn.addEventListener('click', () => {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = colorPicker.value;
+        });
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            lastX = e.clientX - rect.left;
+            lastY = e.clientY - rect.top;
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.beginPath();
+            if (isEraser) {
+                ctx.strokeStyle = '#ffffff';
+            } else {
+                ctx.strokeStyle = colorPicker.value;
+            }
+
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+
+            lastX = x;
+            lastY = y;
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+    </script>
+</body>
+</html>
